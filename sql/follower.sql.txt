@@ -1,0 +1,249 @@
+
+	create table if not exists FOLLOWER (
+
+		pkey INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		follower_userId varchar(128) not null,
+		follower_username varbinary(128),
+		follower_screenname varbinary(128),
+		tweet_count INT,
+		profile_string varbinary(512),
+		favorites_count INT,
+		followers_count INT,
+		friends_count INT,
+		created_on date,
+		is_protected BOOL,
+		is_verified BOOL,
+		last_status_date date,
+		grouping_column INT,
+		count_column INT,
+	
+		index followeruseridindex (follower_userId),
+		index followerusernameindex (follower_username),
+		index followerscreennameindex (follower_screenname)
+	
+	) CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+	
+	
+# for emojis - but doesn't work
+# For each database: ALTER DATABASE twitter_data CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci; 
+# For each table: ALTER TABLE table_name CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; 
+# For each column: ALTER TABLE table_name CHANGE column_name column_name VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; �
+
+# tweet-rate
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus, 
+(to_days(now())- to_days(last_status_date)) as daysSinceActive,
+tweet_count as tweets,
+(tweet_count / (to_days(now()) - to_days(created_on))) as tweetRate,
+is_protected as protected
+from follower 
+order by tweetRate desc
+limit 20;
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus, 
+(to_days(now())- to_days(last_status_date)) as daysSinceActive,
+tweet_count as tweets,
+(tweet_count / (to_days(now()) - to_days(created_on))) as tweetRate,
+is_protected as protected
+from follower 
+where follower_screenname = "mikesmith1662";
+
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus, 
+(to_days(now())- to_days(last_status_date)) as daysSinceActive,
+tweet_count as tweets,
+(tweet_count / (to_days(now()) - to_days(created_on))) as tweetRate,
+favorites_count as likes,
+(favorites_count / (to_days(now()) - to_days(created_on))) as likeRate,
+is_protected as protected
+from follower 
+order by likeRate desc
+limit 20;
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus, 
+(to_days(now())- to_days(last_status_date)) as daysSince,
+tweet_count as tweets,
+(tweet_count / (to_days(now()) - to_days(created_on))) as tweetRate,
+favorites_count as likes,
+(favorites_count / (to_days(now()) - to_days(created_on))) as likeRate,
+is_protected as protected,
+followers_count as followers,
+friends_count as following,
+friends_count/followers_count as followback
+from follower 
+order by tweetRate desc
+limit 50;
+
+select count(*) from follower where (to_days(now())- to_days(last_status_date)) > 90; 
+
+select count(*) from follower where is_protected = 1;
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus, 
+(to_days(now())- to_days(last_status_date)) as daysSince,
+favorites_count as likes,
+(favorites_count / (to_days(now()) - to_days(created_on))) as likeRate
+from follower 
+order by likeRate desc
+limit 20;
+
+
+
+
+select count(twitter_data.follower.follower_screenname) from twitter_data.follower 
+left join ( twitter_data_cernovich.follower ) 
+on twitter_data.follower.follower_screenname = twitter_data_cernovich.follower.follower_screenname;
+
+
+select count(twitter_data.follower.follower_screenname) from twitter_data.follower 
+inner join ( twitter_data_cernovich.follower ) 
+on twitter_data.follower.follower_screenname = twitter_data_cernovich.follower.follower_screenname;
+
+select twitter_data.follower.follower_screenname
+from twitter_data.follower 
+left join ( twitter_data_cernovich.follower) 
+on twitter_data.follower.follower_screenname = twitter_data_cernovich.follower.follower_screenname;
+
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus
+from follower 
+order by lifespan desc
+limit 20;
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus
+from follower 
+order by lifespan asc
+limit 20;
+
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus, 
+(to_days(now())- to_days(last_status_date)) as daysSince,
+tweet_count as tweets,
+(tweet_count / (to_days(now()) - to_days(created_on))) as tweetRate,
+favorites_count as likes,
+(favorites_count / (to_days(now()) - to_days(created_on))) as likeRate,
+is_protected as protected,
+followers_count as followers,
+friends_count as following,
+friends_count/followers_count as followback
+from follower 
+order by lifespan asc
+limit 50;
+
+
+select count(*), created_on from follower group by created_on order by created_on desc;
+
+select *
+from follower 
+order by pkey asc
+limit 20;
+
+
+select sum(tweet_count), 
+DATE_FORMAT(created_on, '%Y%m') as createMonth
+from follower 
+where profile_string = ''
+group by DATE_FORMAT(created_on, '%Y%m') 
+order by DATE_FORMAT(created_on, '%Y-%m') desc;
+
+select count(*)
+from follower 
+where profile_string = '';
+
+
+select count(*) 
+from follower
+where created_on >= '2017-05-20' 
+and created_on <='2017-06-05';
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus, 
+(to_days(now())- to_days(last_status_date)) as daysSinceActive,
+tweet_count as tweets,
+(tweet_count / (to_days(now()) - to_days(created_on))) as tweetRate,
+is_protected as protected
+from follower 
+where profile_string = '' 
+and created_on >= '2017-05-01' 
+and created_on <='2017-05-31'
+order by tweetRate desc
+limit 50;
+
+
+select grouping_column, sum(tweet_count) as t from follower group by grouping_column order by t asc;  
+
+select grouping_column, avg((to_days(now()) - to_days(created_on))) as avgLifespan, 
+avg((to_days(now())- to_days(last_status_date))) as avgDaysSinceActive,
+avg(tweet_count) as avgTweets,
+avg((tweet_count / (to_days(now()) - to_days(created_on)))) as avgTweetRate
+from follower 
+group by grouping_column
+order by grouping_column desc;
+
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus, 
+(to_days(now())- to_days(last_status_date)) as daysSinceActive,
+tweet_count as tweets,
+(tweet_count / (to_days(now()) - to_days(created_on))) as tweetRate,
+is_protected as protected
+from follower 
+where grouping_column = 3
+order by created_on asc
+limit 50;
+
+select min(created_on) as c
+from follower 
+group by grouping_column
+order by grouping_column desc;
+
+select grouping_column,
+min(created_on) as c
+from follower 
+group by grouping_column
+order by grouping_column desc;
+
+create table tmp_group_min_id (
+follower_userid varchar(128));
+
+insert into tmp_group_min_id (follower_userid) 
+select min(convert(follower_userid, unsigned)) as id from follower group by grouping_column order by id;
+
+
+select min(conv(follower_userid as unsigned)) as id from follower group by grouping_column;
+
+select grouping_column, 
+    follower_screenname, 
+    tweet_count,
+    created_on 
+    from follower 
+    inner join tmp_group_min_id on follower.follower_userid = tmp_group_min_id.follower_userid 
+    order by grouping_column asc;
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus, 
+(to_days(now())- to_days(last_status_date)) as daysSinceActive,
+tweet_count as tweets,
+(tweet_count / (to_days(now()) - to_days(created_on))) as tweetRate,
+is_protected as protected
+from follower 
+where created_on < '2007-01-01';
+
+
+select follower_screenname, created_on, (to_days(now()) - to_days(created_on)) as lifespan, 
+last_status_date as lastStatus, 
+(to_days(now())- to_days(last_status_date)) as daysSinceActive,
+tweet_count as tweets,
+(tweet_count / (to_days(now()) - to_days(created_on))) as tweetRate,
+is_protected as protected
+from follower_trump_june5 
+where grouping_column = 3
+order by created_on desc
+limit 50;
